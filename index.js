@@ -8,9 +8,7 @@ const bodyParser = require('body-parser');
 const supabaseClient = require('@supabase/supabase-js');
 
 app.use(bodyParser.json());
-
-console.log('URL:', process.env.SUPABASE_URL);
-console.log('KEY:', process.env.SUPABASE_ANON_KEY ? 'LOADED' : 'MISSING');
+app.use(express.static(__dirname + '/public'));
 
 
 
@@ -20,6 +18,8 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
 
+
+// Get flight data from Supabase
 app.get('/flights', async(req, res) => {
     console.log('Received GET request for /flights');
 
@@ -32,13 +32,16 @@ app.get('/flights', async(req, res) => {
     } else {
         res.send(data);
     }
-})
+});
 
 app.post('/flights', (req, res) => {
     console.log('Received flight data:', req.body);
     res.send(req.body);
 });
 
+
+
+// Start the server
 app.listen(port, () => {
     console.log('App is available on port: ', port);
 });
