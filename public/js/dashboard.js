@@ -39,4 +39,34 @@ function getTopDelays() {
     .catch(error => console.error('Error fetching data:', error));
 }
 
-window.onload = getTopDelays;
+
+function getFlightStatusChart() {
+    const ctx = document.getElementById('flightStatusChart');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+        labels: [
+            'On Time',
+            'Delayed',
+            'Cancelled',
+            'Diverted'
+        ],
+        datasets: [{
+            label: 'My First Dataset',
+            data: [300, 50, 100, 25],
+            backgroundColor: [
+                'rgba(128, 255, 99, 1)',
+                'rgba(235, 217, 54, 1)',
+                'rgba(255, 86, 86, 1)',
+                'rgba(98, 79, 242, 1)'
+            ],
+            hoverOffset: 4
+        }]
+        }
+    });
+}
+
+window.onload = () => {
+    getTopDelays(); getFlightStatusChart();
+};

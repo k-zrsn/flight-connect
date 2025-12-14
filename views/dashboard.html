@@ -5,6 +5,7 @@
     <head>
         <title>Dashboard - FlightConnect</title>
         <link rel="stylesheet" href="/public/css/main.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script> <!-- Chart.js library -->
         <script src="/public/js/dashboard.js" defer></script>
     </head>
 
@@ -29,33 +30,28 @@
 
         <br>
         <h2>Major Delays</h2>
-        <div id="majorDelaysContainer">
-            <table id="majorDelaysTable">
-                <thead>
-                    <tr>
-                        <th>Flight</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Delay (minutes)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                    </tr>
+        <div id="dashboardContainer">
+            <div id="majorDelaysContainer">
+                <table id="majorDelaysTable">
+                    <thead>
+                        <tr>
+                            <th>Flight</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Delay (minutes)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- rows will populate dynamically -->
+                    </tbody>
+                </table>
+            </div>
 
-                    <tr>
-                    </tr>
-
-                    <tr>
-                    </tr>
-
-                    <tr>
-                    </tr>
-
-                    <tr>
-                    </tr>
-                </tbody>
-            </table>
+            <aside id="flightStatusContainer">
+                <div class="chartBox">
+                    <canvas id="flightStatusChart"></canvas>
+                </div>
+            </aside>
         </div>
 
         <br><br><br>
