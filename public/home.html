@@ -3,15 +3,16 @@
 <html>
 
     <head>
-        <title>FlightConnect Home</title>
+        <title>Home - FlightConnect</title>
         <link rel="stylesheet" href="main.css">
         <script src="home.js" defer></script>
     </head>
 
+
     <body class="mainBody">
+
         <header class="header">
             <h1 class="title">FlightConnect</h1>
-
             <nav class="navBar">
                 <ul>
                     <li><a href="home.html">Home</a></li>
@@ -23,12 +24,57 @@
             </nav>
         </header>
 
-
-        <br><br>
+        <br>
         <h1>Home</h1>
-        <br><br>
+
+        <br>
         <h2>Major Delays</h2>
-        <br><br>
+        <div id="majorDelaysContainer">
+            <table id="majorDelaysTable">
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Origin</th>
+                        <th>Destination</th>
+                        <th>Delay (minutes)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AA123</td>
+                        <td>JFK</td>
+                        <td>LAX</td>
+                        <td>120</td>
+                    </tr>
+                    <tr>
+                        <td>DL456</td>
+                        <td>ATL</td>
+                        <td>ORD</td>
+                        <td>95</td>
+                    </tr>
+                    <tr>
+                        <td>UA789</td>
+                        <td>SFO</td>
+                        <td>SEA</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>SW101</td>
+                        <td>DAL</td>
+                        <td>HOU</td>
+                        <td>75</td>
+                    </tr>
+                    <tr>
+                        <td>JB202</td>
+                        <td>EWR</td>
+                        <td>FLL</td>
+                        <td>60</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <br><br><br>
         <h2>Help</h2>
     </body>
 
