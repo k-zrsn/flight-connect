@@ -22,7 +22,7 @@ const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
 // Root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard.html'));
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 
@@ -41,12 +41,13 @@ app.post('/flights', (req, res) => {
 });
 
 
-// Export app
+
+/* Export app
+*/
 module.exports = app;
 
 
-/*
-const port = 3000;
+/* Local testing
 app.listen(port, () => {
     console.log('App is available on port:', port);
 });
