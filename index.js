@@ -22,7 +22,7 @@ const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
 // Root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+    res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
 });
 
 
