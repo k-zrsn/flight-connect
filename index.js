@@ -2,46 +2,52 @@
 
 require('dotenv').config();
 const express = require('express');
+const path = require("path");
 const app = express();
 const port = 3000;
 const bodyParser = require('body-parser');
 const supabaseClient = require('@supabase/supabase-js');
 
+
+// Middleware
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 
 
-
-// Initialize Supabase client
+// Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
 
+// Root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
 
-// Get flight data from Supabase
-app.get('/flights', async(req, res) => {
-    console.log('Received GET request for /flights');
 
-    const {data, error} = await supabase.from('flights').select();
+// API routes
+app.get('/flights', async (req, res) => {
+    const { data, error } = await supabase.from('flights').select();
 
     if (error) {
-        console.log('Error fetching flight data:', error);
-        res.status(500);
-        res.send(error);
-    } else {
-        res.send(data);
+        return res.status(500).json(error);
     }
+    res.json(data);
 });
 
 app.post('/flights', (req, res) => {
-    console.log('Received flight data:', req.body);
-    res.send(req.body);
+    res.json(req.body);
 });
 
 
+// Export app
+module.exports = app;
 
-// Start the server
+
+/*
+const port = 3000;
 app.listen(port, () => {
-    console.log('App is available on port: ', port);
+    console.log('App is available on port:', port);
 });
+*/
