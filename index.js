@@ -21,11 +21,9 @@ const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
 
 // Root route
-app.get('/dashboard', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
 });
-
-
 
 
 // API routes
