@@ -11,7 +11,7 @@ const supabaseClient = require('@supabase/supabase-js');
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Initialize Supabase
