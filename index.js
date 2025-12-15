@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const supabaseClient = require('@supabase/supabase-js');
 
 
+
 // Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+
 
 
 // Root route
@@ -40,23 +42,24 @@ app.get('/about', (req, res) => {
 
 
 
-/* API routes */
+// API routes
+
+
 app.get('/flights', async (req, res) => {
-    const { data, error } = await supabase.from('flights').select();
+    const { data, error } = await supabase
+        .from('flights')
+        .select();
+        //.order('departure_time', { ascending: false })
+        //.limit(100); // most recent 100 flights
 
-    if (error) {
-        return res.status(500).json(error);
-    }
-    res.json(data);
+    if (error) return res.status(400).json({ error });
+    res.json({ data });
 });
 
-app.post('/flights', (req, res) => {
-    res.json(req.body);
-});
 
 
 
-/* Fetch data from AviationStack API
+// Fetch data from AviationStack API
 async function fetchFlights() {
     const res = await fetch(''); // REMEMBER TO CHANGE FETCH URL
 
@@ -66,7 +69,7 @@ async function fetchFlights() {
 
 async function cacheFlights() {
     const flights = await fetchFlights();
-    console.log('Fetched Flights:', flights);   
+    console.log('Fetched Flights:', flights);
 
     const formattedFlights = flights.map(f => ({
         flight_iata: f.flight.iata,
@@ -81,25 +84,34 @@ async function cacheFlights() {
 
     const { data, error } = await supabase
         .from('flights')
-        .insert(formattedFlights); 
+        .upsert(formattedFlights, { onConflict: 'flight_iata' });
 
     if (error) console.error('Error caching flights:', error);
     else console.log('Flights cached successfully');
 }
-cacheFlights();
 
 
-app.get('/flights', async (req, res) => {
-    const { data, error } = await supabase
-        .from('flights')
-        .select('*')
-        .order('departure_time', { ascending: false })
-        .limit(100); // most recent 100 flights
 
-    if (error) return res.status(400).json({ error });
-    res.json({ data });
-});
-*/
+// Write endpoitnt to trigger caching
+app.post('/cache-flights', async (req, res) => {
+    try {
+        await cacheFlights()
+        res.json({ message: 'Flights cached successfully' })
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to cache flights' })
+    }
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 
