@@ -1,12 +1,16 @@
 // schedules.js
 
 let allFlights = [];
+let map;
+let flightMarker = null;
 
 function formatTime(ts) {
     if (!ts) return 'N/A'
     return new Date(ts).toLocaleString()
 }
 
+
+// Loading screen functions
 function setProgress(percent, text) {
     document.getElementById('progressFill').style.width = `${percent}%`;
     document.getElementById('progressText').innerText = text;
@@ -17,11 +21,9 @@ function hideLoading() {
 }
 
 
-
 async function createCache() {
     await fetch('/cache-flights', { method: 'POST' });
 }
-
 
 async function loadSchedules() {
     try {
@@ -43,7 +45,6 @@ function getDelayClass(delay) {
     return 'delay-severe';
 }
 
-
 function renderFlights(flights) {
     const tableBody = document.querySelector('#timeTable tbody');
     tableBody.innerHTML = '';
@@ -59,6 +60,7 @@ function renderFlights(flights) {
 
             row.classList.add('active-flight');
             loadPassengers(flight.id);
+            showFlightOnMap(flight);
         });
 
         row.innerHTML = `
@@ -120,47 +122,115 @@ async function loadPassengers(flightId) {
     }
 }
 
-document.getElementById('flightSearch').addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
+function initializeMap() {
+    map = L.map('flightMap').setView([20, 0], 3);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    console.log('Map initialized', map);
+}
 
-    const filteredFlights = allFlights.filter(f =>
-        f.flight_iata?.toLowerCase().includes(term) ||
-        f.departure_airport?.toLowerCase().includes(term) ||
-        f.arrival_airport?.toLowerCase().includes(term)
-    );
+function showFlightOnMap(flight) {
 
-    renderFlights(filteredFlights);
+    // todo: add location estimation if no live data
+
+    if (!flight.live_latitude || !flight.live_longitude) {
+        console.warn('No live data for flight', flight.flight_iata);
+        return;
+    }
+
+    const lat = flight.live_latitude;
+    const lon = flight.live_longitude;
+
+    if (flightMarker) {
+        map.removeLayer(flightMarker);
+    }
+
+    flightMarker = L.marker([lat, lon]).addTo(map)
+        .bindPopup(`
+            <b>${flight.flight_iata}</b><br>
+            Status: ${flight.flight_status}<br>
+            LIVE DATA
+        `)
+        .openPopup();
+
+    map.setView([lat, lon], 6);
+    console.log('map:', map);
+    console.log('lat/lon:', flight.live_latitude, flight.live_longitude);
+
+}
+
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+
+    const flightSearch = document.getElementById('flightSearch');
+    if (flightSearch) {
+        flightSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+
+            const filteredFlights = allFlights.filter(f =>
+                f.flight_iata?.toLowerCase().includes(term) ||
+                f.departure_airport?.toLowerCase().includes(term) ||
+                f.arrival_airport?.toLowerCase().includes(term)
+            );
+
+            renderFlights(filteredFlights);
+        });
+    }
+
+    const sortDelayButton = document.getElementById('sortDelay');
+    if (sortDelayButton) {
+        sortDelayButton.addEventListener('click', () => {
+            const sorted = [...allFlights].sort(
+                (a, b) => Number(b.arrival_delay || 0) - Number(a.arrival_delay || 0)
+            );
+
+            renderFlights(sorted);
+        });
+    }
+
+    const refreshButton = document.getElementById('refreshDataButton');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', async () => {
+            setProgress(20, 'Refreshing flight data…');
+
+            await fetch('/cache-flights', { method: 'POST' });
+
+            setProgress(70, 'Reloading schedules…');
+            await loadSchedules();
+
+            setProgress(100, 'Done');
+            setTimeout(hideLoading, 300);
+        });
+    }
+
 });
 
-document.getElementById('sortDelay').addEventListener('click', () => {
-    const sorted = [...allFlights].sort(
-        (a, b) => (b.arrival_delay || 0) - (a.arrival_delay || 0)
-    );
-
-    renderFlights(sorted);
-});
 
 
+
+
+//Page load
 window.onload = async () => {
     try {
-        setProgress(10, 'Initializing…');
-
-        setProgress(30, 'Loading flight data…');
-        await fetch('/cache-flights', { method: 'POST' });
-
-        setProgress(70, 'Loading passengers…');
-        await new Promise(r => setTimeout(r, 400)); 
-
-        setProgress(90, 'Loading schedules…');
+        setProgress(10, 'Initializing map…')
+        initializeMap();
+        
+        setProgress(40, 'Loading flight data…');
         await loadSchedules();
+        
+        setProgress(70, 'Loading passengers…');
+        await new Promise(r => setTimeout(r, 400));
 
         setProgress(100, 'Done');
         setTimeout(hideLoading, 300);
+
+
+
 
     } catch (err) {
         console.error(err);
         setProgress(100, 'Failed to load data');
     }
 };
-
-

@@ -2,81 +2,95 @@
 
 <html>
 
-<head>
-    <title>Schedules - FlightConnect</title>
-    <link rel="stylesheet" href="/css/main.css">
-    <script src="/js/schedules.js" defer></script>
-</head>
+    <head>
+        <title>Schedules - FlightConnect</title>
+        <link rel="stylesheet" href="/css/main.css">
 
-<body class="mainBody">
+        <!-- Leaflet CSS and JS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <header class="header">
-        <h1 class="title">FlightConnect</h1>
-        <nav class="navBar">
-            <ul>
-                <li><button class="button-74" onclick="window.location.href='/dashboard'">Dashboard</button></li>
+        <script src="/js/schedules.js" defer></script>
+    </head>
 
-                <li><button class="button-74" onclick="window.location.href='/schedules'">Schedules</button></li>
+    <body class="mainBody">
 
-                <li><button class="button-74" onclick="window.location.href='/about'">About</button></li>
-            </ul>
-        </nav>
-    </header>
+        <header class="header">
+            <h1 class="title">FlightConnect</h1>
+            <nav class="navBar">
+                <ul>
+                    <li><button class="button-74" onclick="window.location.href='/dashboard'">Dashboard</button></li>
+
+                    <li><button class="button-74" onclick="window.location.href='/schedules'">Schedules</button></li>
+
+                    <li><button class="button-74" onclick="window.location.href='/about'">About</button></li>
+                </ul>
+            </nav>
+        </header>
 
 
-    <br>
-    <h1>Flight Schedules</h1>
-    <div id="schedulesContainer">
-        <div id="leftPanel">
-            <h2>Passengers</h2>
-            <div id="passengersContainer">
-                <p>Select a flight to view passengers.</p>
+        <br>
+        <h1>Flight Schedules</h1>
+
+        <!-- REFRESH DATA - HIT AVIATIONSTACK API -->
+        <button id="refreshDataButton">Refresh Flight Data</button>
+
+        <br><br>
+        <div id="schedulesContainer">
+            <div id="leftPanel">
+                <h2>Passengers</h2>
+                <div id="passengersContainer">
+                    <p>Select a flight to view passengers.</p>
+                </div>
+            </div>
+
+            <div id="rightPanel">
+                <h2>Timetable</h2>
+
+                <input type="text" id="flightSearch" placeholder="Search by flight, origin, destination...">
+                <div id="filterBox">
+                    <button id="sortDelay">Sort by Delay</button>
+                </div>
+
+                <br>
+                <div id="timeTableContainer">
+                    <table id="timeTable">
+                        <thead>
+                            <tr>
+                                <th>Flight Number</th>
+                                <th>Origin</th>
+                                <th>Destination</th>
+                                <th>Departure Time</th>
+                                <th>Arrival Time</th>
+                                <th>Delay (minutes)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- rows will populate dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div id="rightPanel">
-            <h2>Timetable</h2>
+        <br>
+        <div id="mapContainer">
+            <h1>Map</h1>
+            <div id="flightMap">
 
-            <input type="text" id="flightSearch" placeholder="Search by flight, origin, destination...">
-            <div id="filterBox">
-                <button id="sortDelay">Sort by Delay</button>
             </div>
+        </div>
+        <br><br>
+        <h2>Help</h2>
+    </body>
 
-            <br>
-            <div id="timeTableContainer">
-                <table id="timeTable">
-                    <thead>
-                        <tr>
-                            <th>Flight Number</th>
-                            <th>Origin</th>
-                            <th>Destination</th>
-                            <th>Departure Time</th>
-                            <th>Arrival Time</th>
-                            <th>Delay (minutes)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- rows will populate dynamically -->
-                    </tbody>
-                </table>
+    <div id="loadingOverlay">
+        <div class="progress-wrapper">
+            <p id="progressText">Initializing…</p>
+            <div class="progress-bar">
+                <div id="progressFill"></div>
             </div>
         </div>
     </div>
-
-    <br><br>
-    <h2>Help</h2>
-</body>
-
-<div id="loadingOverlay">
-    <div class="progress-wrapper">
-        <p id="progressText">Initializing…</p>
-        <div class="progress-bar">
-            <div id="progressFill"></div>
-        </div>
-    </div>
-</div>
-
-
-
 </html>
