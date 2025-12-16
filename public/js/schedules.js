@@ -39,9 +39,10 @@ async function loadSchedules() {
 }
 
 function getDelayClass(delay) {
-    if (!delay || delay === 0) return 'delay-ontime';
-    if (delay < 15) return 'delay-minor';
-    if (delay < 60) return 'delay-moderate';
+    const d = Number(delay) || 0;
+    if (d === 0) return 'delay-ontime';
+    if (d < 15) return 'delay-minor';
+    if (d < 60) return 'delay-moderate';
     return 'delay-severe';
 }
 
@@ -193,19 +194,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshButton = document.getElementById('refreshDataButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', async () => {
-            setProgress(20, 'Refreshing flight data…');
+            try {
+            setProgress(10, 'Refreshing flight data…');
 
+            // Update cache (Aviationstack + Supabase)
             await fetch('/cache-flights', { method: 'POST' });
 
-            setProgress(70, 'Reloading schedules…');
+            setProgress(60, 'Reloading schedules…');
+
             await loadSchedules();
 
             setProgress(100, 'Done');
             setTimeout(hideLoading, 300);
-        });
-    }
-
-});
+        } catch (err) {
+            console.error('Refresh failed:', err);
+            setProgress(100, 'Refresh failed');
+        }
+    });
+}});
 
 
 
@@ -214,23 +220,24 @@ document.addEventListener('DOMContentLoaded', () => {
 //Page load
 window.onload = async () => {
     try {
-        setProgress(10, 'Initializing map…')
+        setProgress(10, 'Initializing map…');
         initializeMap();
-        
-        setProgress(40, 'Loading flight data…');
-        await loadSchedules();
-        
-        setProgress(70, 'Loading passengers…');
-        await new Promise(r => setTimeout(r, 400));
+
+        setProgress(30, 'Loading flight data…');
+        await loadSchedules(); 
+
+        setProgress(60, 'Updating flight cache…');
+        await fetch('/cache-flights', { method: 'POST' });
+
+        setProgress(80, 'Reloading updated data…');
+        await loadSchedules(); 
 
         setProgress(100, 'Done');
         setTimeout(hideLoading, 300);
-
-
-
 
     } catch (err) {
         console.error(err);
         setProgress(100, 'Failed to load data');
     }
 };
+
