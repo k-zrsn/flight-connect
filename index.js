@@ -46,22 +46,20 @@ app.get('/about', (req, res) => {
 /// Fetch data from AviationStack API
 async function fetchFlights() {
     try {
-        const res = await fetch('');
+        const res = await fetch(''); // REMEMBER TO CHANGE TO YOUR OWN KEY
         const data = await res.json();
 
         if (!data || !data.data || !Array.isArray(data.data)) {
             console.error('Invalid API response:', data);
-            return [];  // always return an array
+            return [];  
         }
 
         return data.data;
     } catch (err) {
         console.error('Failed to fetch flights:', err);
-        return []; // fallback to empty array
+        return []; 
     }
 }
-
-
 
 /// Cache fetched data to Supabase
 async function cacheFlights() {
@@ -69,7 +67,7 @@ async function cacheFlights() {
     console.log('Fetched flights:', flights);
 
     const formattedFlights = flights.map((f, index) => ({
-        flight_iata: f.flight?.iata || `UNKNOWN-${index}`,
+        flight_iata: f.flight?.iata || `UNKNOWN_${index}`,
         flight_number: f.flight?.number || 'N/A',
         departure_airport: f.departure?.iata || 'N/A',
         arrival_airport: f.arrival?.iata || 'N/A',
@@ -83,7 +81,7 @@ async function cacheFlights() {
     const uniqueFlights = Array.from(
         new Map(formattedFlights.map(f => [f.flight_iata, f])).values()
     );
-    
+
     // Upsert and return full rows with IDs
     const { data: upsertedFlights, error } = await supabase
         .from('flights')
@@ -95,18 +93,22 @@ async function cacheFlights() {
     }
 
     // console.log(`Cached ${upsertedFlights.length} flights`);
-    return upsertedFlights; // these have IDs
+    return upsertedFlights;
 }
 
 /// Random passenger generator
 function generatePassengers(flightId, count = 20) {
-    const firstNames = ['Virgil', 'Samantha', 'Noah', 'Noel', 'Virginia', 'Kurt', 'Carol','Brandon','Bethany','Ernie','Phoebe','Lenny','Jessica','Allen','Ginger'];
-    const lastNames = ['Smith', 'Johnson', 'Lee', 'Garcia', 'Brown','Sanchez','Terry','Freeman','Owens','Young','Preston','Brooks','Castillo','Carson','Dallas'];
+    const firstNames = [
+        'Virgil', 'Samantha', 'Noah', 'Noel', 'Virginia', 'Kurt', 'Carol', 'Brandon', 'Bethany', 'Ernie', 'Phoebe', 'Lenny', 'Jessica', 'Allen', 'Ginger', 'Dale','Molly', 'Trevor', 'Diana', 'Gloria', 'Evan', 'Tina', 'Russell', 'Melanie', 'Curtis', 'Yvonne', 'Leonard', 'Chelsea', 'Derek', 'Suzanne','Shawn', 'Cynthia', 'Randall', 'Lori', 'Barry', 'Kristin', 'Alexander', 'Jill', 'Francis', 'Erica','Mitchell', 'Becky', 'Calvin', 'Holly', 'Clayton', 'Monica', 'Shane', 'Jasmine', 'Jamie', 'Natalie','Phillip', 'Sabrina', 'Marcus', 'Rosemary', 'Dustin', 'Kelsey', 'Trevor', 'Leah', 'Geoffrey', 'Carmen', 'Shaun', 'Casey', 'Darryl', 'Angelica', 'Jared', 'Margaret','Anmol'
+    ];
+    const lastNames = [
+        'Smith', 'Johnson', 'Lee', 'Garcia', 'Brown', 'Sanchez', 'Terry', 'Freeman', 'Owens', 'Young', 'Preston', 'Brooks', 'Castillo', 'Carson', 'Dallas','Fleming', 'Hodges', 'Nolan', 'Brock', 'Hunt', 'Ramos', 'Maldonado', 'Farmer', 'Huang', 'Nixon', 'Crawford', 'Henry', 'Boyd', 'Mason', 'Morales','Kennedy', 'Warren', 'Dixon', 'Rojas', 'Hanson', 'Johnston', 'Stevenson', 'Dean', 'Gilbert', 'Garner','Sutton', 'Greene', 'Burke', 'Haynes', 'Ford', 'Hamilton', 'Graham', 'Sullivan', 'Wallace', 'Woods','Coleman', 'West', 'Jordan', 'Owens', 'Reynolds', 'Fisher', 'Ellis', 'Harrison','Gibson', 'McDonald'
+    ];
 
     return Array.from({ length: count }).map(() => ({
         first_name: firstNames[Math.floor(Math.random() * firstNames.length)],
         last_name: lastNames[Math.floor(Math.random() * lastNames.length)],
-        checked_in: Math.random() > 0.8,
+        checked_in: Math.random() > 0.15,
         flight_id: flightId
     }));
 }
@@ -148,15 +150,30 @@ async function fillPassengersForFlights() {
     }
 }
 
+// Clear all passengers
+async function clearPassengers() {
+    const { error } = await supabase
+        .from('passengers')
+        .delete()
+        .neq('id', 0); 
+
+    if (error) {
+        console.error('Failed to clear passengers:', error);
+    } else {
+        console.log('All passengers deleted');
+    }
+}
+
 
 
 // API endpoints
 /// Cache flight schedules to Supabase
 app.post('/cache-flights', async (req, res) => {
     try {
-        const flights = await cacheFlights();
-
+        await clearPassengers();
+        await cacheFlights();
         await fillPassengersForFlights();
+
         res.json({ message: 'Flights and passengers cached successfully' });
     } catch (err) {
         console.error('Error in /cache-flights:', err);
@@ -179,8 +196,8 @@ app.get('/flights', async (req, res) => {
     const { data, error } = await supabase
         .from('flights')
         .select();
-        //.order('departure_time', { ascending: false })
-        //.limit(100); // most recent 100 flights
+    //.order('departure_time', { ascending: false })
+    //.limit(100); // most recent 100 flights
 
     if (error) return res.status(400).json({ error });
     res.json({ data });
