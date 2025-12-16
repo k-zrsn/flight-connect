@@ -6,65 +6,70 @@
 
 
 
-function getTopDelays() {
-    fetch(`http://localhost:3001/v1/flights?min_delay_arr=1&access_key=c3e1530a346fbe1ce47204b80d03efca`)
-    .then(response => response.json())
-    .then(data => {
-        const delays = data.data;
-        const topDelays = delays
-        .sort((a, b) => (b.arrival.delay || 0) - (a.arrival.delay || 0))
-        .slice(0, 5);
+async function getTopDelays() {
+    try {
+        const response = await fetch('/flights');
+        const result = await response.json();
+
+        const flights = result.data || [];
+
+        const topDelays = flights
+            .sort(
+                (a, b) =>
+                    Number(b.arrival_delay || 0) -
+                    Number(a.arrival_delay || 0)
+            )
+            .slice(0, 5);
 
         console.log('Top 5 Delayed Flights:', topDelays);
 
         const tableBody = document.querySelector('#majorDelaysTable tbody');
-        tableBody.innerHTML = ''; // Clear previous rows
+        tableBody.innerHTML = '';
 
         topDelays.forEach(flight => {
             const row = document.createElement('tr');
 
-            const flightCell = document.createElement('td');
-            flightCell.textContent = flight.flight.iata || flight.flight.number || 'N/A';
-            row.appendChild(flightCell);
-
-            const originCell = document.createElement('td');
-            originCell.textContent = flight.departure.iata || 'N/A';
-            row.appendChild(originCell);
-
-            const destinationCell = document.createElement('td');
-            destinationCell.textContent = flight.arrival.iata || 'N/A';
-            row.appendChild(destinationCell);
-
-            const delayCell = document.createElement('td');
-            delayCell.textContent = flight.arrival.delay || 0;
-            row.appendChild(delayCell);
+            row.innerHTML = `
+                <td>${flight.flight_iata || 'N/A'}</td>
+                <td>${flight.departure_airport || 'N/A'}</td>
+                <td>${flight.arrival_airport || 'N/A'}</td>
+                <td>${Number(flight.arrival_delay || 0)} min</td>
+            `;
 
             tableBody.appendChild(row);
         });
-    })
-    .catch(error => console.error('Error fetching data:', error));
+
+    } catch (err) {
+        console.error('Error loading top delays:', err);
+    }
 }
 
 
-function getFlightStatusChart() {
+
+async function getFlightStatusChart() {
     const ctx = document.getElementById('flightStatusChart').getContext('2d');
 
-    fetch(`http://localhost:3001/v1/flights?limit=100&sort=desc&access_key=c3e1530a346fbe1ce47204b80d03efca`)
-    .then(response => response.json())
-    .then(data => {
-        const flights = data.data;
-        console.log('Fetched Flights for Chart:', flights);
+    try {
+        const response = await fetch('/flights');
+        const result = await response.json();
+        const flights = result.data || [];
 
         let onTime = 0, delayed = 0, cancelled = 0, diverted = 0;
 
         flights.forEach(flight => {
-            if (flight.flight_status === 'cancelled') cancelled++;
-            else if (flight.flight_status === 'diverted') diverted++;
-            else if (flight.arrival.delay && flight.arrival.delay > 0) delayed++;
-            else onTime++;
-        });
+            const status = flight.flight_status;
+            const delay = Number(flight.arrival_delay || 0);
 
-        console.log('Flight Status Counts:', { onTime, delayed, cancelled, diverted });
+            if (status === 'cancelled') {
+                cancelled++;
+            } else if (status === 'diverted') {
+                diverted++;
+            } else if (delay > 0) {
+                delayed++;
+            } else {
+                onTime++;
+            }
+        });
 
         if (window.flightStatusChartInstance) {
             window.flightStatusChartInstance.destroy();
@@ -92,13 +97,17 @@ function getFlightStatusChart() {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Flight Status Distribution (Lastest 100 Flights)'
+                        text: 'Flight Status Distribution (Latest Flights)'
                     }
                 }
             }
         });
-    })
+
+    } catch (err) {
+        console.error('Error loading flight status chart:', err);
+    }
 }
+
 
 
 window.onload = () => {
