@@ -29,30 +29,32 @@
         <h1>Dashboard</h1>
 
         <br>
-        <h2>Major Delays</h2>
         <div id="dashboardContainer">
-            <div id="majorDelaysContainer">
-                <table id="majorDelaysTable">
-                    <thead>
-                        <tr>
-                            <th>Flight</th>
-                            <th>Origin</th>
-                            <th>Destination</th>
-                            <th>Delay (minutes)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- rows will populate dynamically -->
-                    </tbody>
-                </table>
-            </div>
+            <h2 id="majorDelaysHeader">Major Delays</h2>
 
-            <aside id="flightStatusContainer">
-                <div class="chartBox">
-                    <canvas id="flightStatusChart"></canvas>
+            <div id="dashboardContent">
+                <div id="majorDelaysContainer">
+                    <table id="majorDelaysTable">
+                        <thead>
+                            <tr>
+                                <th>Flight</th>
+                                <th>Origin</th>
+                                <th>Destination</th>
+                                <th>Delay (minutes)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
-            </aside>
+
+                <aside id="flightStatusContainer">
+                    <div class="chartBox">
+                        <canvas id="flightStatusChart"></canvas>
+                    </div>
+                </aside>
+            </div>
         </div>
+
 
         <br><br><br>
         <h2>Help</h2>
