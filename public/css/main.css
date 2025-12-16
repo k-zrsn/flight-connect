@@ -281,6 +281,22 @@
                 background-color: #ffadad;
                 font-weight: bold;
             }
+            
+            .live-flight {
+                border-left: 4px solid #2ecc71;
+                background-color: rgba(46, 204, 113, 0.08);
+                font-weight: 500;
+            }
+
+            .live-badge {
+                display: inline-block;
+                padding: 2px 6px;
+                margin-left: 6px;
+                font-size: 11px;
+                border-radius: 4px;
+                background: #2ecc71;
+                color: #fff;
+            }
 
 #flightMap { 
     height: 500px; 

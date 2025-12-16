@@ -3,6 +3,8 @@
 let allFlights = [];
 let map;
 let flightMarker = null;
+let sortByDelay = false;
+
 
 function formatTime(ts) {
     if (!ts) return 'N/A'
@@ -21,9 +23,12 @@ function hideLoading() {
 }
 
 
+// Cache and schedule creation functions
+/*
 async function createCache() {
     await fetch('/cache-flights', { method: 'POST' });
 }
+*/
 
 async function loadSchedules() {
     try {
@@ -31,7 +36,7 @@ async function loadSchedules() {
         const result = await response.json();
 
         allFlights = result.data || [];
-        renderFlights(allFlights);
+        applyFiltersAndSort();
 
     } catch (err) {
         console.error('Failed to load schedules:', err);
@@ -46,13 +51,21 @@ function getDelayClass(delay) {
     return 'delay-severe';
 }
 
+
+// Map and table rendering functions
 function renderFlights(flights) {
     const tableBody = document.querySelector('#timeTable tbody');
     tableBody.innerHTML = '';
 
     flights.forEach(flight => {
+        const hasLiveData = flight.live_latitude && flight.live_longitude;
         const row = document.createElement('tr');
         row.style.cursor = 'pointer';
+
+
+        if (hasLiveData) {
+            row.classList.add('live-flight');
+        }
 
         row.addEventListener('click', () => {
             document
@@ -65,7 +78,11 @@ function renderFlights(flights) {
         });
 
         row.innerHTML = `
-            <td>${flight.flight_iata || 'N/A'}</td>
+            <td>
+                ${flight.flight_iata || 'N/A'}
+                ${hasLiveData ? '<span class="live-badge">LIVE</span>' : ''}
+            </td>
+
             <td>${flight.departure_airport || 'N/A'}</td>
             <td>${flight.arrival_airport || 'N/A'}</td>
             <td>${formatTime(flight.departure_time)}</td>
@@ -133,8 +150,6 @@ function initializeMap() {
 
 function showFlightOnMap(flight) {
 
-    // todo: add location estimation if no live data
-
     if (!flight.live_latitude || !flight.live_longitude) {
         console.warn('No live data for flight', flight.flight_iata);
         return;
@@ -161,57 +176,91 @@ function showFlightOnMap(flight) {
 
 }
 
+function applyFiltersAndSort() {
+    const term = document.getElementById('flightSearch')?.value.toLowerCase() || '';
+    const liveOnly = document.getElementById('liveOnlyToggle')?.checked;
+
+    let result = [...allFlights];
+
+    if (term) {
+        result = result.filter(f =>
+            f.flight_iata?.toLowerCase().includes(term) ||
+            f.departure_airport?.toLowerCase().includes(term) ||
+            f.arrival_airport?.toLowerCase().includes(term)
+        );
+    }
+
+    if (liveOnly) {
+        result = result.filter(f =>
+            f.live_latitude && f.live_longitude
+        );
+    }
+
+    if (sortByDelay) {
+        result.sort(
+            (a, b) => Number(b.arrival_delay || 0) - Number(a.arrival_delay || 0)
+        );
+    }
+
+    renderFlights(result);
+}
+
+
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Search input
     const flightSearch = document.getElementById('flightSearch');
     if (flightSearch) {
-        flightSearch.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-
-            const filteredFlights = allFlights.filter(f =>
-                f.flight_iata?.toLowerCase().includes(term) ||
-                f.departure_airport?.toLowerCase().includes(term) ||
-                f.arrival_airport?.toLowerCase().includes(term)
-            );
-
-            renderFlights(filteredFlights);
-        });
+        flightSearch.addEventListener('input', applyFiltersAndSort);
     }
 
+    // Sort by delay button
     const sortDelayButton = document.getElementById('sortDelay');
     if (sortDelayButton) {
         sortDelayButton.addEventListener('click', () => {
-            const sorted = [...allFlights].sort(
-                (a, b) => Number(b.arrival_delay || 0) - Number(a.arrival_delay || 0)
-            );
+            sortByDelay = !sortByDelay;
 
-            renderFlights(sorted);
+            sortDelayButton.textContent = sortByDelay
+                ? 'Sort by Delay *'
+                : 'Sort by Delay';
+
+            applyFiltersAndSort();
         });
+
     }
 
+    // Refresh data button
     const refreshButton = document.getElementById('refreshDataButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', async () => {
             try {
-            setProgress(10, 'Refreshing flight data…');
+                setProgress(10, 'Refreshing flight data…');
 
-            // Update cache (Aviationstack + Supabase)
-            await fetch('/cache-flights', { method: 'POST' });
+                // Update cache (Aviationstack + Supabase)
+                await fetch('/cache-flights', { method: 'POST' });
 
-            setProgress(60, 'Reloading schedules…');
+                setProgress(60, 'Reloading schedules…');
 
-            await loadSchedules();
+                await loadSchedules();
 
-            setProgress(100, 'Done');
-            setTimeout(hideLoading, 300);
-        } catch (err) {
-            console.error('Refresh failed:', err);
-            setProgress(100, 'Refresh failed');
-        }
-    });
-}});
+                setProgress(100, 'Done');
+                setTimeout(hideLoading, 300);
+            } catch (err) {
+                console.error('Refresh failed:', err);
+                setProgress(100, 'Refresh failed');
+            }
+        })
+    };
+
+    // Live flights only toggle
+    const liveOnlyToggle = document.getElementById('liveOnlyToggle');
+
+    if (liveOnlyToggle) {
+        liveOnlyToggle.addEventListener('change', applyFiltersAndSort);
+    }
+});
 
 
 
@@ -224,13 +273,13 @@ window.onload = async () => {
         initializeMap();
 
         setProgress(30, 'Loading flight data…');
-        await loadSchedules(); 
+        await loadSchedules();
 
         setProgress(60, 'Updating flight cache…');
         await fetch('/cache-flights', { method: 'POST' });
 
         setProgress(80, 'Reloading updated data…');
-        await loadSchedules(); 
+        await loadSchedules();
 
         setProgress(100, 'Done');
         setTimeout(hideLoading, 300);
