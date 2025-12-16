@@ -46,7 +46,14 @@ app.get('/about', (req, res) => {
 /// Fetch data from AviationStack API
 async function fetchFlights() {
     try {
-        const res = await fetch(''); // REMEMBER TO CHANGE TO YOUR OWN KEY
+
+
+
+        const res = await fetch(''); // REMEMBER TO CHANGE TO AVIATIONSTACK API
+
+
+
+
         const data = await res.json();
 
         if (!data || !data.data || !Array.isArray(data.data)) {
@@ -153,8 +160,9 @@ async function fillPassengersForFlights() {
 
         const { data: insertedPassengers, error: insertError } = await supabase
             .from('passengers')
-            .insert(passengers)
-            .select();
+            .delete()
+            .eq('flight_id', flight.id);
+            
 
         if (insertError) {
             console.error(`Failed to insert passengers for flight ${flight.flight_iata}:`, insertError);

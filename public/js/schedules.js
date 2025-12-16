@@ -60,7 +60,7 @@ function renderFlights(flights) {
     tableBody.innerHTML = '';
 
     flights.forEach(flight => {
-        const hasLiveData = flight.live_latitude && flight.live_longitude;
+        const hasLiveData = flight.live_latitude != null && flight.live_longitude != null;
         const row = document.createElement('tr');
         row.style.cursor = 'pointer';
 
@@ -304,13 +304,7 @@ window.onload = async () => {
         setProgress(10, 'Initializing map…');
         initializeMap();
 
-        setProgress(30, 'Loading flight data…');
-        await loadSchedules();
-
-        setProgress(60, 'Updating flight cache…');
-        await fetch('/cache-flights', { method: 'POST' });
-
-        setProgress(80, 'Reloading updated data…');
+        setProgress(60, 'Loading flight data…');
         await loadSchedules();
 
         setProgress(100, 'Done');
