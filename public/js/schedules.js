@@ -8,6 +8,11 @@ let selectedFlightId = null;
 
 
 
+function scrollToHelp() {
+    const element = document.getElementById('helpContainer');
+    element.scrollIntoView();
+}
+
 function formatTime(ts) {
     if (!ts) return 'N/A'
     return new Date(ts).toLocaleString()
