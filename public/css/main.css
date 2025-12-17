@@ -336,7 +336,7 @@
 
 #flightMap { 
     height: 850px; 
-    width: 50%;
+    width: 70%;
     border: 3px solid black;
     margin: 0 auto;
 }
