@@ -49,7 +49,7 @@ async function fetchFlights() {
 
 
 
-        const res = await fetch(''); // REMEMBER TO CHANGE TO AVIATIONSTACK API
+        const res = await fetch('http://localhost:3001/v1/flights'); // REMEMBER TO CHANGE TO AVIATIONSTACK API
 
         
 
@@ -74,28 +74,32 @@ async function cacheFlights() {
     console.log('Fetched flights:', flights);
 
     const formattedFlights = flights.map((f, index) => {
-        const flight = {
-            flight_iata: f.flight?.iata || `UNKNOWN_${index}`,
-            flight_number: f.flight?.number || 'N/A',
-            departure_airport: f.departure?.iata || 'N/A',
-            arrival_airport: f.arrival?.iata || 'N/A',
-            departure_time: f.departure?.scheduled || null,
-            arrival_time: f.arrival?.scheduled || null,
-            arrival_delay: f.arrival?.delay || 0,
-            flight_status: f.flight_status || 'unknown',
-        };
+    const flight = {
+        flight_iata: f.flight?.iata || `UNKNOWN_${index}`,
+        flight_number: f.flight?.number || 'N/A',
 
-        // only add live fields if Aviationstack provides them
-        if (f.live?.latitude != null && f.live?.longitude != null) {
-            flight.live_latitude = f.live.latitude;
-            flight.live_longitude = f.live.longitude;
-            flight.live_updated = f.live.updated;
-        }
+        departure_airport: f.departure?.iata || 'N/A',
+        arrival_airport: f.arrival?.iata || 'N/A',
 
-        return flight;
-    });
+        departure_airport_full: f.departure?.airport || null,
+        arrival_airport_full: f.arrival?.airport || null,
+        airline_name: f.airline?.name || null,
 
-    
+        departure_time: f.departure?.scheduled || null,
+        arrival_time: f.arrival?.scheduled || null,
+        arrival_delay: f.arrival?.delay || 0,
+        flight_status: f.flight_status || 'unknown',
+    };
+
+
+    if (f.live?.latitude != null && f.live?.longitude != null) {
+        flight.live_latitude = f.live.latitude;
+        flight.live_longitude = f.live.longitude;
+        flight.live_updated = f.live.updated;
+    }
+
+    return flight;
+}); 
 
     // Remove duplicates based on flight_iata
     const uniqueFlights = Array.from(

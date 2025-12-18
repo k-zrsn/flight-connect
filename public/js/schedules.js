@@ -140,12 +140,23 @@ function renderFlights(flights) {
 
         row.innerHTML = `
             <td>
-                ${flight.flight_iata || 'N/A'}
-                ${hasLiveData ? '<span class="live-badge">LIVE</span>' : ''}
+                <span class="tooltip" data-tooltip="${flight.airline_name || 'Unknown airline'}">
+                    ${flight.flight_iata || 'N/A'}
+                </span>
             </td>
 
-            <td>${flight.departure_airport || 'N/A'}</td>
-            <td>${flight.arrival_airport || 'N/A'}</td>
+            <td>
+                <span class="tooltip" data-tooltip="${flight.departure_airport_full || flight.departure_airport}">
+                    ${flight.departure_airport || 'N/A'}
+                </span>
+            </td>
+
+            <td>
+                <span class="tooltip" data-tooltip="${flight.arrival_airport_full || flight.arrival_airport}">
+                    ${flight.arrival_airport || 'N/A'}
+                </span>
+            </td>
+
             <td>${formatTime(flight.departure_time)}</td>
             <td>${formatTime(flight.arrival_time)}</td>
             <td class="${getDelayClass(flight.arrival_delay)}">
@@ -315,14 +326,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 setProgress(null, 'Reloading schedules…');
-                smoothProgress(80, 600);
+                smoothProgress(80, 5);
 
                 // Reload from Supabase
                 await loadSchedules();
 
 
             setProgress(null, 'Finalizing…');
-            smoothProgress(95, 60);
+            smoothProgress(95, 5);
 
             setTimeout(() => {
                 setProgress(100, 'Done!');

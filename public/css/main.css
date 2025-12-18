@@ -342,6 +342,53 @@
                 background: #2ecc71;
                 color: #fff;
             }
+            .tooltip {
+                position: relative;
+                cursor: help;
+                border-bottom: 1px dotted black;
+            }
+            /* Tooltip bubble */
+            .tooltip::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 130%;
+                left: 50%;
+                transform: translateX(-50%);
+                white-space: nowrap;
+
+                background: #222;
+                color: #fff;
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 12px;
+
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.15s ease;
+                z-index: 1000;
+            }
+
+            /* Little arrow */
+            .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 120%;
+                left: 50%;
+                transform: translateX(-50%);
+
+                border-width: 6px;
+                border-style: solid;
+                border-color: #222 transparent transparent transparent;
+
+                opacity: 0;
+                transition: opacity 0.15s ease;
+            }
+
+            /* Show on hover */
+            .tooltip:hover::after,
+            .tooltip:hover::before {
+                opacity: 1;
+            }
 
 #helpContainer {
     padding: 20px;
