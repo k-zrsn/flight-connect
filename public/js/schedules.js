@@ -45,9 +45,19 @@ function hideLoading() {
 
 function showLoading() {
     const overlay = document.getElementById('loadingOverlay');
+
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+
+    const fill = document.getElementById('progressFill');
+    fill.style.width = '0%';
+
     overlay.style.display = 'flex';
-    setProgress(0, 'Starting refresh…');
+    setProgress(0, 'Starting…');
 }
+
 
 function smoothProgress(target, speed = 40) {
     const fill = document.getElementById('progressFill');
@@ -304,7 +314,28 @@ function applyFiltersAndSort() {
 
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // Show loading
+    showLoading();
+    setProgress(0, 'Initializing map…');
+
+    try {
+        initializeMap();
+        smoothProgress(40, 300);
+
+        setProgress(null, 'Loading flight data…');
+        await loadSchedules();
+        smoothProgress(85, 300);
+
+        smoothProgress(100, 20);
+        setTimeout(hideLoading, 350);
+
+    } catch (err) {
+        console.error(err);
+        setProgress(100, 'Failed to load');
+        setTimeout(hideLoading, 600);
+    }
 
     // Search input
     const flightSearch = document.getElementById('flightSearch');
@@ -400,25 +431,3 @@ document.getElementById('reissueTickets')
     // Reload passengers to show updated status
     loadPassengers(selectedFlightId);
 });
-
-
-
-
-//Page load
-window.onload = async () => {
-    try {
-        setProgress(10, 'Initializing map…');
-        initializeMap();
-
-        setProgress(60, 'Loading flight data…');
-        await loadSchedules();
-
-        setProgress(100, 'Done');
-        setTimeout(hideLoading, 300);
-
-    } catch (err) {
-        console.error(err);
-        setProgress(100, 'Failed to load data');
-    }
-};
-
