@@ -16,10 +16,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-// Initialize Supabase
+// Get Supabase env
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+
+// Get AviationStack env
+const aviationstackUrl = process.env.AVIATIONSTACK_URL;
+const aviationstackKey = process.env.AVIATIONSTACK_KEY;
 
 
 
@@ -46,22 +50,23 @@ app.get('/about', (req, res) => {
 /// Fetch data from AviationStack API
 async function fetchFlights() {
     try {
+        const url = `${aviationstackUrl}&access_key=${aviationstackKey}`;
 
+        const res = await fetch(url);
 
-
-        const res = await fetch('http://localhost:3001/v1/flights'); // REMEMBER TO CHANGE TO AVIATIONSTACK API
-
-        
-
+        if (!res.ok) {
+            throw new Error(`AviationStack error: ${res.status}`);
+        }
 
         const data = await res.json();
 
-        if (!data || !data.data || !Array.isArray(data.data)) {
+        if (!data || !Array.isArray(data.data)) {
             console.error('Invalid API response:', data);
             return [];
         }
 
         return data.data;
+
     } catch (err) {
         console.error('Failed to fetch flights:', err);
         return [];
