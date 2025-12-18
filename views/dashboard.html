@@ -31,6 +31,11 @@
 
         <br>
         <h1>Dashboard</h1>
+
+        <!-- REFRESH DATA - HIT AVIATIONSTACK API -->
+        <button id="refreshDataButton">Refresh Flight Data</button>
+
+        <br><br>
         <div id="dashboardContainer">
             <h2 id="majorDelaysHeader">Major Delays</h2>
 
@@ -60,5 +65,18 @@
         <br><br>
         <h3>Tip: Remember to refresh the page for the most accurate and up-to-date information!</h3>
     </body>
+
+    
+    <div id="loadingOverlay">
+        <div class="progress-wrapper">
+            <p id="progressText">Initializing…</p>
+            <div class="progress-bar">
+                <div id="progressFill"></div>
+                <!--
+                    <div id="planeIcon"> </div>
+                -->
+            </div>
+        </div>
+    </div>
 
 </html>
