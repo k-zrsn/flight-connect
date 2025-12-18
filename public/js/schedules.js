@@ -208,7 +208,7 @@ async function loadPassengers(flightId) {
 }
 
 function initializeMap() {
-    map = L.map('flightMap').setView([20, 0], 3);
+    map = L.map('flightMap').setView([20, 0], 1);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);

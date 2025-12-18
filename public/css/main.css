@@ -229,34 +229,43 @@
         padding: 15px;
         border: 3px solid black;
     }
-        #leftPanel thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(225, 196, 145);
-            z-index: 2;
-        }
         .badge.reissued {
             background: #ffd6a5;
             padding: 4px 6px;
             border-radius: 6px;
             font-weight: bold;
         }
-
-    #rightPanel {
-        display: flex;
-        flex-direction: column;
-    }
-        #flightSearch {
-            top: 0;
-            z-index: 3;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 2px solid black;
-            background: white;
+        #leftPanel {
+            max-height: 762px;
         }
+            #leftPanel thead th {
+                position: sticky;
+                top: 0;
+                background: rgb(225, 196, 145);
+                z-index: 2;
+            }
+            #flightMap { 
+                height: 272px; 
+                width: 100%;
+                border: 3px solid black;
+                margin: 0 auto;
+            }
+
+        #rightPanel {
+            display: flex;
+            flex-direction: column;
+        }
+            #flightSearch {
+                top: 0;
+                z-index: 3;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 2px solid black;
+                background: white;
+            }
 
     #passengersContainer {
-        max-height: 674px;   
+        max-height: 337px;   
         overflow-y: auto;
     }
         #passengersContainer table {
@@ -271,7 +280,7 @@
             }
 
     #timeTableContainer {
-        max-height: 500px;
+        height: 500px;
         overflow-y: auto;
     }
         #timeTable {
@@ -333,13 +342,6 @@
                 background: #2ecc71;
                 color: #fff;
             }
-
-#flightMap { 
-    height: 850px; 
-    width: 70%;
-    border: 3px solid black;
-    margin: 0 auto;
-}
 
 #helpContainer {
     padding: 20px;
