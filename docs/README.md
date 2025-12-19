@@ -77,6 +77,7 @@ Flight data is periodically fetched from the external API, normalized, and cache
     SUPABASE_URL=your_supabase_url
     SUPABASE_KEY=your_supabase_service_key
     AVIATIONSTACK_KEY=your_aviationstack_key
+    AVIATIONSTACK_URL=your_aviationstack_url
     ```
 
 ### Running the application on a server
@@ -184,6 +185,7 @@ Reissues tickets for all passengers not checked-in for a given flight.
 
 ## Development Roadmap
 Planned improvements include:
+- Add tooltips for major delays table
 - Converting larger delays from minutes into hours and minutes for major delays table
 - Mobile support/responsiveness
 - Full support for live tracking and enhanced visualization
