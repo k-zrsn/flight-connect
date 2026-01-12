@@ -186,6 +186,7 @@ Reissues tickets for all passengers not checked-in for a given flight.
 ## Development Roadmap
 Planned improvements include:
 - Add tooltips for major delays table
+- Add plane type
 - Converting larger delays from minutes into hours and minutes for major delays table
 - Mobile support/responsiveness
 - Full support for live tracking and enhanced visualization
